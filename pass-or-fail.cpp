@@ -1,8 +1,8 @@
 #include <iostream>
 
 bool passOrFail(){
-	static int funcCounter{ 1 };
-	return funcCounter++ <= 3;
+	static int funcCounter{ 0 };
+	return ++funcCounter <= 3;
 }
 
 int main(){
