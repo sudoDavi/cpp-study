@@ -1,6 +1,7 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
-
-inline constexpr double gravity{ 9.8 };
-
+namespace Constants {
+	inline constexpr double Gravity{ 9.8 };
+	inline constexpr int IgnoreSize{ 32767 };
+}
 #endif
