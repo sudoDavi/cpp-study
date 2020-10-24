@@ -7,7 +7,7 @@ int* find(int *begin, int *end, int value) {
 	for (int *indexPtr{ begin }; indexPtr < end; ++indexPtr)
 		if (*indexPtr == value)
 			return indexPtr;
-	// Just so compiler doesn't complain of no return value
+	// If no value was found, return a pseudo last element pointer, i.e std::end(array)
 	return end;
 }
 
