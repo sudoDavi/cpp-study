@@ -3,7 +3,7 @@
 #include <string>
 
 int main() {
-	const std::string_view names[]{ "Alex", "Betty", "Caroline", "Dave", "Emily", "Fred", "Greg", "Holly" };
+	constexpr std::string_view names[]{ "Alex", "Betty", "Caroline", "Dave", "Emily", "Fred", "Greg", "Holly" };
 
 	std::cout << "Enter a name: ";
 	std::string findName;
