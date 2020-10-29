@@ -11,6 +11,10 @@ namespace GameConfig {
 	constexpr int dealerStandAt{ 17 };
 	// Set the maximum score a player can have without busting
 	constexpr int maximumScore{ 21 };
+	// Set the number of decks, i.e 1 means a normal 52 sized deck, 2 means two normal 52 sized decks, etc...
+	constexpr int numberOfDecks{ 1 };
+	// Set the number of cards in a deck, currently the game only supports 52 cards per deck without accounting
+	// for the numberOfDecks multiplier
 	constexpr int deckSize{ 52 };
 }
 
@@ -97,7 +101,7 @@ int getCardValue(const Card& card) {
 }
 
 // Creating an alias for to shorten the deck type, we'll be using it multiple times
-using deck_type = std::array<Card, GameConfig::deckSize>;
+using deck_type = std::array<Card, GameConfig::deckSize * GameConfig::numberOfDecks>;
 using index_type = deck_type::size_type;
 
 void printDeck(const deck_type& deck ) {
@@ -113,14 +117,16 @@ void printDeck(const deck_type& deck ) {
 deck_type createDeck() {
 	// Create the deck and the index of the array
 	deck_type deck;
-	index_type index{ 0 };
-	// Iterate over all possible cards and create the deck
-	for (int suit{ 0 }; suit < static_cast<int>(CardSuits::TOTAL_SUITS); ++suit) {
-		for (int rank{ 0 }; rank < static_cast<int>(CardRanks::TOTAL_RANKS); ++rank) {
-			// Assign the deck and then increment the index
-			deck[index++] = { static_cast<CardSuits>(suit), static_cast<CardRanks>(rank) };
+	index_type card_index{ 0 };
+	// Create equally sized decks as long as deck_index is smaller than GameConfig::numberOfDecks
+	for (int deck_index{ 0 }; deck_index < GameConfig::numberOfDecks; ++deck_index)
+		// Iterate over all possible cards and create the deck
+		for (int suit{ 0 }; suit < static_cast<int>(CardSuits::TOTAL_SUITS); ++suit) {
+			for (int rank{ 0 }; rank < static_cast<int>(CardRanks::TOTAL_RANKS); ++rank) {
+				// Assign the deck and then increment the index
+				deck[card_index++] = { static_cast<CardSuits>(suit), static_cast<CardRanks>(rank) };
+			}
 		}
-	}
 	return deck;
 }
 
@@ -140,8 +146,8 @@ Card getNewCard(const deck_type& deck) {
 }
 
 bool hitOrStand() {
-	bool repeat{ false };
-	do {
+	// We will repeat this loop until the player has given a valid input
+	while(true) {
 		std::cout << "Do you hit or stand ? ";
 		std::string answer{};
 		std::cin >> answer;
@@ -154,12 +160,7 @@ bool hitOrStand() {
 		// Fix cin just in case
 		std::cin.clear();
 		std::cin.ignore(32767, '\n');
-		repeat = true;
-	}while (repeat);
-
-	// If it ever reaches this point without returning there is
-	// something wrong with the compiler, but whatever, let's make g++ happy
-	return false;
+	}
 }
 
 // Adds the score of card to player(dealer or player), handling the aces as well
