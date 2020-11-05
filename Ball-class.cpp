@@ -6,14 +6,10 @@ private:
 	std::string m_color{ "black" };
 	double m_radius{ 10.0 };
 public:
-	Ball() = default;
 	Ball(double radius) {
 		m_radius = radius;
 	}
-	Ball(const std::string& color) {
-		m_color = color;
-	}
-	Ball(const std::string& color, double radius) {
+	Ball(const std::string& color = "black", double radius = 10.0) {
 		m_color = color;
 		m_radius = radius;
 	}
