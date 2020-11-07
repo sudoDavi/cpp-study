@@ -4,15 +4,10 @@
 class Ball {
 private:
 	std::string m_color{ "black" };
-	double m_radius{ 10.0 };
+	double m_radius{};
 public:
-	Ball(double radius) {
-		m_radius = radius;
-	}
-	Ball(const std::string& color = "black", double radius = 10.0) {
-		m_color = color;
-		m_radius = radius;
-	}
+	Ball(double radius) : m_radius{ radius } {}
+	Ball(const std::string& color = "black", double radius = 10.0) : m_color{ color }, m_radius{ radius } {}
 
 	void print() {
 		std::cout << "color: " + m_color << ", radius: " << m_radius  << '\n';
