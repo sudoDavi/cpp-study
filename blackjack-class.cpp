@@ -90,12 +90,17 @@ public:
 		else
 			return 11;
 	}
+
+	bool isAce() const {
+		return m_rank == Rank::ACE;
+	}
 };
 
 class Deck {
 private:
 	std::array<Card, GameConfig::deckSize> m_deck{};
 	using index_t = std::array<Card, GameConfig::deckSize>::size_type;
+	index_t m_cardIndex{ 0 };
 public:
 	Deck() {
 		index_t card_index{ 0 };
@@ -117,10 +122,41 @@ public:
 	}
 
 	void shuffle() {
+		m_cardIndex = 0;
 		std::shuffle(m_deck.begin(), m_deck.end(), Random::mersenne);
+	}
+
+	const Card& dealCard() {
+		return m_deck[m_cardIndex++];
 	}
 };
 
+class Player {
+private:
+	int m_score{};
+	int m_aceCounter{};
+public:
+	void drawCard(Deck& deck) {
+		const auto dealtCard{ deck.dealCard() };
+		m_score += dealtCard.value();
+		if (dealtCard.isAce())
+			++m_aceCounter;
+		while (m_aceCounter && (m_score > 21)) {
+			// If the player.score(dealer or player) is above the maximum
+			// make it so the ACE they have is equal to a one, while they still have aces
+			m_score -= 10;
+			--m_aceCounter;
+		}
+	}
+
+	int score() const {
+		return m_score;
+	}
+
+	bool isBust() const {
+		return m_score > 21;
+	}
+};
 // enum class MatchOutcome {
 	// LOST,
 	// WON,
@@ -129,22 +165,6 @@ public:
 	// TOTAL_OUTCOMES
 // };
 
-// struct Player {
-	// int score{};
-	// int aceCounter{};
-// };
-
-// Card getNewCard(const deck_type& deck) {
-	// Get cards from the top of the deck, instead of randomly accessing the deck
-	// static index_type cardIndex{ 0 };
-	// Check if the index++ will overflow the deck next time the function is called
-	// if ((cardIndex + 1) > GameConfig::deckSize)
-		// cardIndex = 0;
-// 
-	// This is the new Card, storing it's value is not in the scope of this function
-	// return deck[cardIndex++];
-// }
-// 
 // bool hitOrStand() {
 	// We will repeat this loop until the player has given a valid input
 	// while(true) {
@@ -162,21 +182,7 @@ public:
 		// std::cin.ignore(32767, '\n');
 	// }
 // }
-// 
-// Adds the score of card to player(dealer or player), handling the aces as well
-// void addScore(const Card& card, Player& player) {
-	// player.score += getCardValue(card);
-	// if (card.rank == CardRanks::ACE)
-		// ++player.aceCounter;
-	// while (player.aceCounter && (player.score > 21)) {
-		// If the player.score(dealer or player) is above the maximum
-		// make it so the ACE they have is equal to a one, while they still have aces
-		// player.score -= 10;
-		// --player.aceCounter;
-	// }
-	// 
-// }
-// 
+
 // Deal the dealer's initial cards and return their value
 // void dealDealerInitial(Card& dealtCard, Player& dealer) {
 	// std::cout << "Dealer has: ";
@@ -265,9 +271,17 @@ public:
 
 int main() {
 	Deck deck{};
-	deck.print();
 	deck.shuffle();
 	deck.print();
+
+	Player player{};
+	Player dealer{};
+
+	player.drawCard(deck);
+	dealer.drawCard(deck);
+
+	std::cout << "The player drew a card with value: " << player.score() << '\n';
+	std::cout << "The dealer drew a card with value: " << dealer.score() << '\n';
 
 	return 0;
 }
