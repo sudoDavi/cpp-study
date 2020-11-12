@@ -133,10 +133,13 @@ public:
 
 class Player {
 private:
+	std::string m_name{};
 	int m_score{};
 	int m_aceCounter{};
 public:
-	void drawCard(Deck& deck) {
+	Player(const std::string& name = "Player") : m_name{name} {}
+
+	const Card drawCard(Deck& deck) {
 		const auto dealtCard{ deck.dealCard() };
 		m_score += dealtCard.value();
 		if (dealtCard.isAce())
@@ -147,6 +150,8 @@ public:
 			m_score -= 10;
 			--m_aceCounter;
 		}
+
+		return dealtCard;
 	}
 
 	int score() const {
@@ -154,134 +159,119 @@ public:
 	}
 
 	bool isBust() const {
-		return m_score > 21;
+		return m_score > GameConfig::maximumScore;
 	}
 };
-// enum class MatchOutcome {
-	// LOST,
-	// WON,
-	// TIE,
-// 
-	// TOTAL_OUTCOMES
-// };
 
-// bool hitOrStand() {
-	// We will repeat this loop until the player has given a valid input
-	// while(true) {
-		// std::cout << "Do you hit or stand ? ";
-		// std::string answer{};
-		// std::cin >> answer;
-// 
-		// if (answer.find("hit") != std::string::npos)
-			// return true;
-		// else if (answer.find("stand") != std::string::npos)
-			// return false;
-		// Something has gone wrong or input is invalid
-		// Fix cin just in case
-		// std::cin.clear();
-		// std::cin.ignore(32767, '\n');
-	// }
-// }
+enum class MatchOutcome {
+	LOST,
+	WON,
+	TIE,
 
-// Deal the dealer's initial cards and return their value
-// void dealDealerInitial(Card& dealtCard, Player& dealer) {
-	// std::cout << "Dealer has: ";
-	// printCard(dealtCard);
-	// addScore() to dealer, so their cards are handled correctly
-	// addScore(dealtCard, dealer);
-	// std::cout << "\nWhich amounts to: " << dealer.score << '\n';
-// }
-// 
-// Deal the player's initial cards
-// void dealPlayerInitial(const deck_type& deck, Card& dealtCard, Player& player) {
-	// Give the player its first card
-	// dealtCard = getNewCard(deck);
-	// std::cout << "You have: ";
-	// printCard(dealtCard);
-	// Spacing to format the text
-	// std::cout << ' ';
-	// AddScore() to player, so their cards are handled correctly
-	// addScore(dealtCard, player);
-	// 
-	// Give the player a new card and sum to his total value
-	// dealtCard = getNewCard(deck);
-	// Add the new card to the player's score
-	// addScore(dealtCard, player);
-	// printCard(dealtCard);
-	// Inform player's current value
-	// std::cout << "\nWhich amounts to: " << player.score << '\n';
-// }
-// 
-// MatchOutcome playBlackjack(const deck_type& deck) {
-	// Initialize the dealtCard, which will be the first card in the deck
-	// Card dealtCard{ getNewCard(deck) };
-// 
-	// Deal the Dealer's initial Cards, modifying his struct and dealtCard
-	// Player dealer{};
-	// dealDealerInitial(dealtCard, dealer);
-// 
-	// Deal player initial cards, this modifies dealtCard and the player
-	// Player player{};
-	// dealPlayerInitial(deck, dealtCard, player);
-// 
-	// If hitOrStand returns true, the player wants another card, otherwise jump to the dealer
-	// while (hitOrStand()) {
-		// Draw another card and show it to the player
-		// dealtCard = getNewCard(deck);
-		// addScore(dealtCard, player);
-		// std::cout << "You got a: ";
-		// printCard(dealtCard);
-		// std::cout << "\nYour score is: " << player.score << '\n';
-		// If the player went over 21, he automatically looses
-		// if (player.score > GameConfig::maximumScore)
-			// return MatchOutcome::LOST;
-	// }
-// 
-	// Time for the dealer to draw
-	// He draws until his score is bigger or equal to GameConfig::dealerStandAt
-	// while (dealer.score < GameConfig::dealerStandAt) {
-		// Draw cards for the dealer
-		// dealtCard = getNewCard(deck);
-		// addScore(dealtCard, dealer);
-		// std::cout << "Dealer got a : ";
-		// printCard(dealtCard);
-		// std::cout << "\nDealer is at : " << dealer.score << '\n';
-// 
-		// We can return true here because the player will already have lost via the hitOrStand() if he went over 21
-		// and so the player WINS!!
-		// if (dealer.score > GameConfig::maximumScore)
-			// return MatchOutcome::WON;
-	// }
-// 
-	// If the player has a higher value than the dealer, the player wins
-	// otherwise, their score is equal, since neither of them went over 21
-	// or the player chickened out and the dealer got a higher value
-	// if (player.score > dealer.score)
-		// return MatchOutcome::WON;
-	// else if (player.score < dealer.score)
-		// return MatchOutcome::LOST;
-	// else
-		// return MatchOutcome::TIE;
-// }
-// 
-// std::string manageOutcome(MatchOutcome outcome) {
-	// constexpr std::array outcomes{ "Dealer wins!!", "Player wins!!", "It's a tie!!" };
-	// return outcomes[static_cast<std::size_t>(outcome)];
-// }
+	TOTAL_OUTCOMES
+};
+
+class BlackJack {
+private: // Member variables and functions
+	Deck m_deck{};
+	Player m_player{};
+	Player m_dealer{"Dealer"};
+
+	// Deal the dealer's initial cards and return their value
+	void dealDealerInitial() {
+		std::cout << "Dealer has: ";
+		m_dealer.drawCard(m_deck).print();
+		std::cout << "\nWhich amounts to: " << m_dealer.score() << '\n';
+	}
+
+	static bool hitOrStand() {
+		// We will repeat this loop until the player has given a valid input
+		while(true) {
+			std::cout << "Do you hit or stand ? ";
+			std::string answer{};
+			std::cin >> answer;
+
+			if (answer.find("hit") != std::string::npos)
+				return true;
+			else if (answer.find("stand") != std::string::npos)
+				return false;
+			// Something has gone wrong or input is invalid
+			// Fix cin just in case
+			std::cin.clear();
+			std::cin.ignore(32767, '\n');
+		}
+	}
+
+	// Deal the player's initial cards
+	void dealPlayerInitial() {
+		std::cout << "You have: ";
+		// Give the player its first card and print it
+		m_player.drawCard(m_deck).print();
+		// Spacing to format the text
+		std::cout << ' ';
+		
+		// Give the player a new card and sum to his total score
+		m_player.drawCard(m_deck).print();
+		// Inform player's current value
+		std::cout << "\nWhich amounts to: " << m_player.score() << '\n';
+	}
+
+public: // Public member functions
+	BlackJack(const Deck& deck = Deck{}) : m_deck{deck} {}
+
+	MatchOutcome play() {
+		dealDealerInitial();
+		dealPlayerInitial();
+		// If hitOrStand returns true, the player wants another card, otherwise jump to the dealer
+		while(hitOrStand()) {
+			std::cout << "You got a: ";
+			// Draw another card and show it to the player
+			m_player.drawCard(m_deck).print();
+			std::cout << "\nYour score is: " << m_player.score() << '\n';
+			// If the player went over 21, he automatically looses
+			if (m_player.isBust())
+				return MatchOutcome::LOST;		
+		}
+
+		// Time for the dealer to draw
+		// He draws until his score is bigger or equal to GameConfig::dealerStandAt
+		while (m_dealer.score() < GameConfig::dealerStandAt) {
+				std::cout << "Dealer got a : ";
+				// Draw cards for the dealer
+				m_dealer.drawCard(m_deck).print();
+				std::cout << "\nDealer is at : " << m_dealer.score() << '\n';
+		
+				// We can return true here because the player will already have lost via the hitOrStand() if he went over 21
+				// and so the player WINS!!
+				if (m_dealer.isBust())
+					return MatchOutcome::WON;
+		}
+
+		// If the player has a higher value than the dealer, the player wins
+		// otherwise, their score is equal, since neither of them went over 21
+		// or the player chickened out and the dealer got a higher value
+		if (m_player.score() > m_dealer.score())
+			return MatchOutcome::WON;
+		else if (m_player.score() < m_dealer.score())
+			return MatchOutcome::LOST;
+		else
+			return MatchOutcome::TIE;
+	}
+};
+ 
+const std::string manageOutcome(MatchOutcome outcome) {
+	static constexpr std::array outcomes{ "Dealer wins!!", "Player wins!!", "It's a tie!!" };
+	return outcomes[static_cast<std::size_t>(outcome)];
+}
 
 int main() {
 	Deck deck{};
-	deck.shuffle();
 	deck.print();
+	deck.shuffle();
 
-	Player player{};
-	Player dealer{};
-
-	player.drawCard(deck);
-	dealer.drawCard(deck);
-
-	std::cout << "The player drew a card with value: " << player.score() << '\n';
-	std::cout << "The dealer drew a card with value: " << dealer.score() << '\n';
+	BlackJack game{ deck };
+	
+	std::cout << manageOutcome(game.play()) << '\n';
 
 	return 0;
 }
