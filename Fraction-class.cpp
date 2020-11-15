@@ -5,9 +5,24 @@ private:
 	int m_numerator{};
 	int m_denominator{};
 public:
-	Fraction(int numerator = 0, int denomitator = 1) : m_numerator{numerator}, m_denominator{denomitator} {}
+	Fraction(int numerator = 0, int denomitator = 1) : m_numerator{numerator}, m_denominator{denomitator} {
+		reduce();
+	}
 	void print() {
 		std::cout << m_numerator << '/' << m_denominator << '\n';
+	}
+
+	// a is numerator b is denominator
+	int gcd(int a, int b) {
+		return (b == 0) ? (a > 0 ? a : -a) : gcd(b, a % b);
+	}
+
+	void reduce() {
+		if (m_numerator != 0 && m_denominator != 0) {
+			int gcd{ Fraction::gcd(m_numerator, m_denominator) };
+			m_numerator /= gcd;
+			m_denominator /= gcd;
+		}
 	}
 
 	friend Fraction operator*(const Fraction& left, const Fraction& right);
@@ -45,6 +60,9 @@ int main() {
 
 	Fraction f6{ Fraction{1, 2} * Fraction{2, 3} * Fraction{3, 4} };
 	f6.print();
+
+	Fraction f7{ 0, 6 };
+	f7.print();
 
 	return 0;
 }
