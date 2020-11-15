@@ -28,7 +28,28 @@ public:
 	friend Fraction operator*(const Fraction& left, const Fraction& right);
 	friend Fraction operator*(const Fraction& left, const int right);
 	friend Fraction operator*(const int left, const Fraction& right);
+	friend std::ostream& operator<<(std::ostream& out, const Fraction& fraction);
+	friend std::istream& operator>>(std::istream& in, Fraction& fraction);
 };
+
+std::ostream& operator<<(std::ostream& out, const Fraction& fraction) {
+	out << fraction.m_numerator << '/' << fraction.m_denominator;
+
+	return out;
+}
+
+std::istream& operator>>(std::istream& in, Fraction& fraction) {
+	in >> fraction.m_numerator;
+
+	// Ignore the /, so the user can input something like 1/2
+	in.ignore(32767, '/');
+
+	in >> fraction.m_denominator;
+
+	fraction.reduce();
+
+	return in;
+}
 
 Fraction operator*(const Fraction& left, const Fraction& right) {
 	return Fraction{ left.m_numerator * right.m_numerator, left.m_denominator * right.m_denominator };
@@ -43,26 +64,15 @@ Fraction operator*(const int left, const Fraction& right) {
 }
 
 int main() {
-	Fraction f1{ 2, 5 };
-	f1.print();
+	Fraction f1{};
+	std::cout << "Enter fraction 1: ";
+	std::cin >> f1;
 
-	Fraction f2{ 3, 8 };
-	f2.print();
+	Fraction f2{};
+	std::cout << "Enter fraction 2: ";
+	std::cin >> f2;
 
-	Fraction f3{ f1 * f2 };
-	f3.print();
-
-	Fraction f4{ f1 * 2 };
-	f4.print();
-
-	Fraction f5 { 2 * f2 };
-	f5.print();
-
-	Fraction f6{ Fraction{1, 2} * Fraction{2, 3} * Fraction{3, 4} };
-	f6.print();
-
-	Fraction f7{ 0, 6 };
-	f7.print();
+	std::cout << f1 << " * " << f2 << " is " << f1 * f2 << '\n';
 
 	return 0;
 }
