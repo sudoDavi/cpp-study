@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdint>
+#include <cmath>
 
 class FixedPoint2 {
 private:
@@ -16,6 +17,11 @@ public:
 		}
 	}
 
+	FixedPoint2(double number) {
+		m_nonDecimal = static_cast<std::int16_t>(number);
+		m_decimal = std::round((number - static_cast<std::int16_t>(number)) * 100);
+	}
+
 	operator double() const { return static_cast<double>(m_nonDecimal) + (m_decimal / 100.0); }	
 	friend std::ostream& operator<<(std::ostream& out, const FixedPoint2& number);
 };
@@ -26,22 +32,17 @@ std::ostream& operator<<(std::ostream& out, const FixedPoint2& number) {
 }
 
 int main() {
-	FixedPoint2 a{ 34, 56 };
+	FixedPoint2 a{ 0.01 };
 	std::cout << a << '\n';
 
-	FixedPoint2 b{ -2, 8 };
+	FixedPoint2 b{ -0.01 };
 	std::cout << b << '\n';
 
-	FixedPoint2 c{ 2, -8 };
+	FixedPoint2 c{ 5.01 };
 	std::cout << c << '\n';
 
-	FixedPoint2 d{ -2, -8 };
+	FixedPoint2 d{ -5.01 };
 	std::cout << d << '\n';
-
-	FixedPoint2 e{ 0, -5 };
-	std::cout << e << '\n';
-
-	std::cout << static_cast<double>(e) << '\n';
 
 	return 0;
 }
